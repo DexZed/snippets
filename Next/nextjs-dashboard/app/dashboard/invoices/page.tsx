@@ -1,62 +1,35 @@
-import { FormEvent } from "react";
-
-export default function Page() {
- function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data = Object.fromEntries(formData.entries());
-
-};
+import Pagination from '@/app/ui/invoices/pagination';
+import Search from '@/app/ui/search';
+import Table from '@/app/ui/invoices/table';
+import { CreateInvoice } from '@/app/ui/invoices/buttons';
+import { lusitana } from '@/app/ui/fonts';
+import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
+import { Suspense } from 'react';
+ 
+export default async function Page(props: {
+  searchParams?: Promise<{
+    query?: string;
+    page?: string;
+  }>;
+}) {
+  const searchParams = await props.searchParams;
+  const query = searchParams?.query || '';
+  const currentPage = Number(searchParams?.page) || 1;
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset>
-        <legend>User Information</legend>
-        <label>
-          First Name:
-          <input type="text" name="firstName" required />
-        </label>
-        <br />
-        <label>
-          Last Name:
-          <input type="text" name="lastName" required />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input type="email" name="email" required />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input type="password" name="password" required />
-        </label>
-        <br />
-        <label>
-          Date of Birth:
-          <input type="date" name="dob" required />
-        </label>
-        <br />
-        <label>
-          Phone Number:
-          <input type="tel" name="phone" required />
-        </label>
-        <br />
-        <label>
-          Gender:
-          <select name="gender" required>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Address:
-          <textarea name="address" rows={4} cols={30} required />
-        </label>
-        <br />
-        <button type="submit">Submit</button>
-      </fieldset>
-    </form>
+    <div className="w-full">
+      <div className="flex w-full items-center justify-between">
+        <h1 className={`${lusitana.className} text-2xl`}>Invoices</h1>
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+        <Search placeholder="Search invoices..." />
+        <CreateInvoice />
+      </div>
+       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <Table query={query} currentPage={currentPage} />
+      </Suspense>
+      <div className="mt-5 flex w-full justify-center">
+        {/* <Pagination totalPages={totalPages} /> */}
+      </div>
+    </div>
   );
 }
