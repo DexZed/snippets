@@ -1,6 +1,6 @@
 import User from "@/app/interface/user";
 import connect from "@/app/lib/db";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { NextResponse } from "next/server";
 
 //
@@ -59,12 +59,38 @@ export async function PATCH(req: Request) {
   try {
     const body = await req.json();
     const { id, newName, newEmail, newPassword } = body;
-    connect();
+    console.log(body);
+     await connect();
     if (!id || !newName || !newEmail || !newPassword) {
       return NextResponse.json(
         { message: "Please provide all fields" },
         { status: 400 }
       );
     }
-  } catch (error) {}
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: "Invalid user id" }, { status: 400 });
+    }
+    const updateUser = await User.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { name: newName, email: newEmail, password: newPassword } },
+      { new: true }
+    );
+    if (!updateUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      {
+        message: "User updated successfully",
+        user: updateUser,
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Error updating user", error },
+      { status: 500 }
+    );
+  }
 }
