@@ -58,10 +58,10 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { id, newName, newEmail, newPassword } = body;
+    const { id, name, email, password } = body;
     console.log(body);
-     await connect();
-    if (!id || !newName || !newEmail || !newPassword) {
+    await connect();
+    if (!id || !name || !email || !password) {
       return NextResponse.json(
         { message: "Please provide all fields" },
         { status: 400 }
@@ -72,7 +72,7 @@ export async function PATCH(req: Request) {
     }
     const updateUser = await User.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: { name: newName, email: newEmail, password: newPassword } },
+      { $set: { name: name, email: email, password: password } },
       { new: true }
     );
     if (!updateUser) {
@@ -90,6 +90,44 @@ export async function PATCH(req: Request) {
   } catch (error) {
     return NextResponse.json(
       { message: "Error updating user", error },
+      { status: 500 }
+    );
+  }
+}
+
+// define delete method to delete user by id
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    console.log(id);
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "Please provide user id" },
+        { status: 400 }
+      );
+    }
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: "Invalid user id" }, { status: 400 });
+    }
+    connect();
+    const deleteUser = await User.findByIdAndDelete(id);
+    if (!deleteUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      {
+        message: "User deleted successfully",
+        user: deleteUser,
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Error deleting user", error },
       { status: 500 }
     );
   }
