@@ -19,14 +19,16 @@ export async function GET(req: Request) {
     if (!finduser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const sessions = await Sessions.find({ userId: new Types.ObjectId(id) });
-    return NextResponse.json({ sessions }, { status: 200 });
-  } catch (e) {
+    const getSessions = await Sessions.find({ user_id: id }); // do not use object id 
+    return NextResponse.json({ getSessions}, { status: 200 });
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred";
     return NextResponse.json(
-      {
-        message: e,
-      },
-      { status: 500 }
+
+        {
+            message: errorMessage,
+        },
+        { status: 500 }
     );
   }
 }

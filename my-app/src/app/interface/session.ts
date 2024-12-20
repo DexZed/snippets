@@ -3,8 +3,8 @@ import { model, models, Schema } from "mongoose";
 
 const SessionsSchema = new Schema(
     {
-        userId : {type: Schema.Types.ObjectId, ref: "User" },
-        jwt : { type: 'string', required: true}
+        user_id : {type: Schema.Types.ObjectId, ref: "User" },
+        jwt : { type: 'String', required: true}
     },
    {
     timestamps: true,
@@ -15,6 +15,6 @@ const SessionsSchema = new Schema(
 
 );
 
-const Sessions = models.Sessions || model("sessions",SessionsSchema)
+const Sessions = models.Sessions || model("Sessions",SessionsSchema)
 
 export default Sessions;
