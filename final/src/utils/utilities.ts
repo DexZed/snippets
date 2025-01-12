@@ -1,7 +1,5 @@
 
 
-
-
 export function validatePass(password: string): string | null {
   console.log(`Validating password: ${password}`);
   if (password.length < 6) {
@@ -28,3 +26,15 @@ export function validateEmail(email: string): boolean {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
   return emailRegex.test(email);
 }
+const MAX_RETRIES = 3;
+export const retryRequest = async (fn: () => Promise<any>, retries = MAX_RETRIES) => {
+  while (retries > 0) {
+    try {
+      return await fn();
+    } catch (error) {
+      retries--;
+      if (retries === 0) throw error;
+    }
+  }
+};
+

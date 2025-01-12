@@ -12,12 +12,15 @@ import {
 
 import React, { createContext, useContext } from "react";
 
-import api from "../services/api";
+//import api, { apiTokenized } from "../services/api";
 import app from "../auth/firebase";
 import { computed, effect, signal } from "@preact/signals-react";
+//import { retryRequest } from "../utils/utilities";
+//import { debounce } from "lodash";
 
 export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+
 
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -142,55 +145,65 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return auth.currentUser;
   }
 
+  // const debouncedSessionUpdate = debounce(async ( user = ensureUser()) => {
+  //   if (user) {
+  //     try {
+  //       const idToken = await user.getIdToken(true); // Ensures token refresh
+  //       await retryRequest(() =>
+  //         apiTokenized.post(
+  //           "/api/postSessions",
+  //           {},
+  //           {
+  //             headers: { Authorization: `Bearer ${idToken}` },
+  //           }
+  //         )
+  //       );
+  //     } catch (error) {
+  //       console.error("Error sending token to backend:", error);
+  //     }
+  //   } else {
+  //     try {
+  //       await retryRequest(() => api.delete("/delSessions"));
+  //     } catch (error) {
+  //       console.error("Error clearing session on logout:", error);
+  //     }
+  //   }
+  // }, 500); // Debounce for 500ms
+  
+  // Main Effects
   effect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const idToken = await user.getIdToken();
-          await api.post(
-            `/postSessions`,
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${idToken}`,
-              },
-            }
-          );
-        } catch (error) {
-          console.error("Error sending token to backend:", error);
-        }
-      } else {
-        try {
-          await api.delete(`/delSessions`);
-        } catch (error) {
-          console.error("Error clearing session on logout:", error);
-        }
+      try {
+        //await debouncedSessionUpdate(user);
+        currentUser.value = user || null;
+      } catch (error) {
+        console.error("Auth state change error:", error);
+      } finally {
+        loading.value = false;
       }
-
-      // Update signals
-      currentUser.value = user || null;
-      loading.value = false;
     });
-
+  
     // Cleanup logic
     return () => unsubscribe();
   });
-  effect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await api.get("/getSessions");
-        if (res.status === 200) {
-          console.log("Session is valid:", res.data);
-        } else {
-          console.log("No session detected");
-        }
-      } catch (error) {
-        console.error("Session check failed:", error);
-      }
-    };
-
-    checkSession();
-  });
+  
+  // effect(() => {
+  //   const checkSession = async () => {
+  //     try {
+  //       const res = await retryRequest(() => apiTokenized.get("/api/getSessions"));
+  //       if (res.status === 200) {
+  //         console.log("Session is valid:", res.data);
+  //       } else {
+  //         console.log("No session detected");
+  //       }
+  //     } catch (error) {
+  //       console.error("Session check failed:", error);
+  //     }
+  //   };
+  
+  //   // Perform session check on mount
+  //   checkSession();
+  // });
 
   const contextValue: AuthContextValue = {
     currentUser, // Signal<User | null>
