@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
+// import { useSecurityEnforcement } from "../utils/signals";
+// import AuthProvider from "../contexts/context";
 
 const Footer = lazy(() => import("../ui/footer/Footer"));
 const Nav = lazy(() => import("../ui/nav/Nav"));
@@ -14,6 +16,7 @@ export const Route = createRootRoute({
 });
 
 function App() {
+ // useSecurityEnforcement();
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Nav />
