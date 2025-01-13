@@ -10,27 +10,20 @@ import {
   UserCredential,
 } from "firebase/auth";
 
-import React, { createContext, useContext } from "react";
-
-//import api, { apiTokenized } from "../services/api";
+import { createContext, useContext, useEffect, useState } from "react";
 import app from "../auth/firebase";
-import { computed, effect, signal } from "@preact/signals-react";
-//import { retryRequest } from "../utils/utilities";
-//import { debounce } from "lodash";
+import { api } from "../services/api";
+
 
 export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
-
-type AuthProviderProps = {
+type AuthProvider = {
   children: React.ReactNode;
 };
 
 type AuthContextValue = {
-  currentUser: typeof currentUser; // Signal for current user
-  loading: typeof loading; // Signal for loading state
-  uid: typeof uid; // Computed signal for UID
-  token: typeof token; // Computed signal for token
+  currentUser: User | null;
+  loading: boolean;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
   signOut: () => Promise<void>;
@@ -55,34 +48,31 @@ type AuthContextValue = {
   getAuthToken: () => Promise<string | null>;
 };
 
-const currentUser = signal<User | null>(null);
-const loading = signal(true);
-const uid = computed(() => {
-  if (!currentUser.value) {
-    throw new Error("No user is logged in");
-  }
-  return currentUser.value.uid;
-});
-
-const token = computed(async () => {
-  if (!currentUser.value) {
-    throw new Error("No user is logged in");
-  }
-  return await currentUser.value.getIdToken();
-});
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export default function AuthProvider({ children }: AuthProviderProps) {
- 
+export default function AuthProvider({ children }: AuthProvider) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const contextValue: AuthContextValue = {
+    currentUser,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    updateDetails,
+    userDetails,
+    signUpAndUpdate,
+    googleAuth,
+    getAuthToken,
+  };
   async function googleAuth() {
     try {
       return await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Google sign-in failed:", error);
+      ////console.error("Google sign-in failed:", error.message);
       throw error;
     }
   }
-
   function signUp(email: string, password: string) {
     return createUserWithEmailAndPassword(auth, email, password);
   }
@@ -106,7 +96,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return updateProfile(user, { displayName, photoURL });
   }
 
-  async function signUpAndUpdate(
+ async function signUpAndUpdate(
     email: string,
     password: string,
     details: { displayName?: string; photoURL?: string }
@@ -130,99 +120,80 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return { displayName, email, photoURL };
   }
 
-  async function getAuthToken(): Promise<string | null> {
-    const user = auth.currentUser;
-    if (user) {
-      return await user.getIdToken();
-    } else {
-      console.error("No user is signed in.");
-      return null;
-    }
-  }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        
+        try {
+          const idToken = await user.getIdToken(); 
+          await api.post(
+            `/api/postSessions`,
+            {}, 
+            {
+              headers: {
+                Authorization: `Bearer ${idToken}`, 
+                 
+              },
+            }
+          );
+        } catch (error) {
+          //console.error("Error sending token to backend:", error);
+        }
+      } else {
+        
+        try {
+          await api.delete(`/api/delSessions`,);
+        } catch (error) {
+          //console.error("Error clearing session on logout:", error);
+        }
+      }
+      setCurrentUser(user || null);
+      setLoading(false);
+    });
+  
+    return unsubscribe;
+  }, [])
+  
+  
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await api.get("/api/getSessions");
+        //console.log("Response from /api/getSessions:", res);
+        if (res.status === 200) {
+          //console.log("Session is valid:", res.data);
+        } else {
+          //console.log("No session detected");
+        }
+      } catch (error) {
+        //console.error("Session check failed:", error);
+        //console.log("Error has occurred");
+      }
+    };
+  
+    checkSession();
+  }, []);
+  
+ 
 
   function ensureUser() {
     if (!auth.currentUser) throw new Error("No user is logged in");
     return auth.currentUser;
   }
 
-  // const debouncedSessionUpdate = debounce(async ( user = ensureUser()) => {
-  //   if (user) {
-  //     try {
-  //       const idToken = await user.getIdToken(true); // Ensures token refresh
-  //       await retryRequest(() =>
-  //         apiTokenized.post(
-  //           "/api/postSessions",
-  //           {},
-  //           {
-  //             headers: { Authorization: `Bearer ${idToken}` },
-  //           }
-  //         )
-  //       );
-  //     } catch (error) {
-  //       console.error("Error sending token to backend:", error);
-  //     }
-  //   } else {
-  //     try {
-  //       await retryRequest(() => api.delete("/delSessions"));
-  //     } catch (error) {
-  //       console.error("Error clearing session on logout:", error);
-  //     }
-  //   }
-  // }, 500); // Debounce for 500ms
-  
-  // Main Effects
-  effect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      try {
-        //await debouncedSessionUpdate(user);
-        currentUser.value = user || null;
-      } catch (error) {
-        console.error("Auth state change error:", error);
-      } finally {
-        loading.value = false;
-      }
-    });
-  
-    // Cleanup logic
-    return () => unsubscribe();
-  });
-  
-  // effect(() => {
-  //   const checkSession = async () => {
-  //     try {
-  //       const res = await retryRequest(() => apiTokenized.get("/api/getSessions"));
-  //       if (res.status === 200) {
-  //         console.log("Session is valid:", res.data);
-  //       } else {
-  //         console.log("No session detected");
-  //       }
-  //     } catch (error) {
-  //       console.error("Session check failed:", error);
-  //     }
-  //   };
-  
-  //   // Perform session check on mount
-  //   checkSession();
-  // });
-
-  const contextValue: AuthContextValue = {
-    currentUser, // Signal<User | null>
-    loading, // Signal<boolean>
-    uid, // Computed signal for UID
-    token, // Computed signal for token
-    signUp,
-    signIn,
-    signOut,
-    updateDetails,
-    userDetails,
-    signUpAndUpdate,
-    googleAuth,
-    getAuthToken,
-  };
+  async function getAuthToken(): Promise<string | null> {
+    const user = auth.currentUser;
+    if (user) {
+      return await user.getIdToken();
+    } else {
+      //console.error("No user is signed in.");
+      return null;
+    }
+  }
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {!loading.value && children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
