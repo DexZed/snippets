@@ -84,6 +84,13 @@ function ListView({}: Props) {
                         </td>
                         <td className="flex gap-2">
                           <Link
+                            className="btn btn-warning btn-outline rounded-full"
+                            to={"/books/" + book._id}
+                          >
+                            Details
+                          </Link>
+
+                          <Link
                             className="btn btn-primary btn-outline rounded-full"
                             to={"/edit-book/" + book._id}
                           >

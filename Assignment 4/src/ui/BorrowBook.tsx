@@ -37,7 +37,7 @@ function BorrowBook({}: Props) {
     try {
         borrow(borrowField).unwrap();
       showSuccessAlert("Success", "Book borrowed successfully!");
-      navigator("/");
+      navigator("/borrow-summary");
     } catch (error) {
         console.error("Borrow failed:",error);
       showErrorAlert("Error", "Failed to borrow the book.");
