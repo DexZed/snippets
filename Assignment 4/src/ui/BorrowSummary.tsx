@@ -16,45 +16,50 @@ function BorrowSummary({}: Props) {
         <>
           <Error></Error>
         </>
+      ) : isLoading ? (
+        <>
+          <div className="flex w-52 flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="skeleton h-16 w-16 shrink-0 rounded-full"></div>
+              <div className="flex flex-col gap-4">
+                <div className="skeleton h-4 w-20"></div>
+                <div className="skeleton h-4 w-28"></div>
+              </div>
+            </div>
+            <div className="skeleton h-32 w-full"></div>
+          </div>
+        </>
       ) : (
         <>
-          <ul className="timeline timeline-vertical">
-            {summary?.data?.map((item, index) => (
-              <li key={index}>
-                  {/* Top hr only if it's NOT the first item */}
-                  {index !== 0 && <hr className="bg-primary" />}
-                  <div className="timeline-middle">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    className={`mb-10 ${
-                      index % 2 === 0
-                        ? "timeline-start md:text-end"
-                        : "timeline-end"
-                    }`}
-                  >
-                    <time className="font-mono italic">
-                      {item.book.createdAt}
-                    </time>
-                    <div className="text-lg font-black">{item.book.title}</div>
-                    <span>{item.book.isbn}</span>
-                    <span>{item.totalQuantity}</span>
-                  </div>
-                  <hr className="bg-primary" />
-                </li>
-            ))}
-          </ul>
+          (
+          <>
+            <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+              <table className="table">
+                {/* head */}
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>ISBN</th>
+                    <th>Total Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summary?.data?.map((item, idx) => {
+                    return (
+                      <tr key={idx} className="hover:bg-base-300">
+                        <th>{idx}</th>
+                        <td>{item.book.title}</td>
+                        <td>{item.book.isbn}</td>
+                        <td>{item.totalQuantity}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+          )
         </>
       )}
     </>

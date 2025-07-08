@@ -50,8 +50,7 @@ function Footer({}: Props) {
         </nav>
         <aside>
           <p>
-            Copyright © {new Date().getFullYear()} - All right reserved by ACME
-            Industries Ltd
+            Copyright © {new Date().getFullYear()} - All right reserved by Trillion Games Inc
           </p>
         </aside>
       </footer>

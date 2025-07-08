@@ -74,6 +74,7 @@ function CreateForm({}: Props) {
                       type="text"
                       className="input"
                       placeholder="Beyond Good and Evil"
+                      required
                     />
 
                     <label className="label">Author</label>
@@ -83,6 +84,7 @@ function CreateForm({}: Props) {
                       type="text"
                       className="input"
                       placeholder="Friedrich Nietzsche"
+                      required
                     />
 
                     <label className="label">Genre</label>
@@ -92,6 +94,7 @@ function CreateForm({}: Props) {
                       type="text"
                       className="input"
                       placeholder="Philosophy"
+                      required
                     />
 
                     <label className="label">ISBN</label>
@@ -101,6 +104,11 @@ function CreateForm({}: Props) {
                       type="text"
                       className="input"
                       placeholder="9780306000000"
+                      required
+                      pattern="[0-9]{13}"
+                      title="ISBN must be 13 digits"
+                      maxLength={13}
+                      minLength={10}
                     />
 
                     <label className="label">Description</label>
@@ -110,6 +118,7 @@ function CreateForm({}: Props) {
                       type="text"
                       className="input"
                       placeholder=" A philosophical novel that explores the nature of truth and morality"
+                      required
                     />
 
                     <label className="label">Copies</label>
@@ -119,6 +128,8 @@ function CreateForm({}: Props) {
                       type="number"
                       className="input"
                       placeholder="10"
+                      required
+                      min="1"
                     />
                     <label className="label">Available</label>
                     <input
