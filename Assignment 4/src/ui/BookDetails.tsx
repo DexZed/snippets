@@ -6,7 +6,7 @@ type Props = {};
 
 function BookDetails({}: Props) {
   const { id } = useParams<{ id: string }>();
-  const { data: response } = useGetSingleBookQuery(id!, {
+  const { data: response, } = useGetSingleBookQuery(id!, {
     skip: !id,
   }) as unknown as {
     data: ApiSingleBookResponse;

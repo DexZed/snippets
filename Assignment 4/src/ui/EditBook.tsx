@@ -127,6 +127,10 @@ export default function EditBook({}: Props) {
                       type="text"
                       className="input"
                       placeholder="9780306000000"
+                      pattern="[0-9]{13}"
+                      title="ISBN must be 13 digits"
+                      maxLength={13}
+                      minLength={10}
                     />
 
                     <label className="label">Description</label>
@@ -147,6 +151,7 @@ export default function EditBook({}: Props) {
                       type="number"
                       className="input"
                       placeholder="10"
+                      min="1"
                     />
                     <label className="label">Available</label>
                     <input

@@ -1,16 +1,19 @@
 import { useNavigate, useParams } from "react-router";
 import {
+  bookApi,
   useCreateBorrowMutation,
   useGetSingleBookQuery,
 } from "../services/books";
 import type { ApiSingleBookResponse, Borrow } from "../utils/Customtypes";
 import { useState } from "react";
 import { showErrorAlert, showSuccessAlert } from "../utils/utilityFunctions";
+import { useAppDispatch } from "../app/hooks";
 
 type Props = {};
 
 function BorrowBook({}: Props) {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
   const [borrowField, setBorrowField] = useState<Borrow>({
     book: "",
     quantity: 0,
@@ -37,6 +40,7 @@ function BorrowBook({}: Props) {
     try {
         borrow(borrowField).unwrap();
       showSuccessAlert("Success", "Book borrowed successfully!");
+      dispatch(bookApi.util.invalidateTags(["Borrow"]));
       navigator("/borrow-summary");
     } catch (error) {
         console.error("Borrow failed:",error);
@@ -78,6 +82,7 @@ function BorrowBook({}: Props) {
                 <button
                   className="btn btn-outline btn-accent mt-4"
                   type="submit"
+                  disabled={!response?.data?.available}
                 >
                   Borrow
                 </button>

@@ -8,7 +8,14 @@ function BorrowSummary({}: Props) {
     data: summary,
     error,
     isLoading,
-  } = useGetBorrowSummaryQuery(undefined);
+  } = useGetBorrowSummaryQuery(undefined,
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+      
+      
+    }
+  );
 
   return (
     <>
@@ -18,21 +25,10 @@ function BorrowSummary({}: Props) {
         </>
       ) : isLoading ? (
         <>
-          <div className="flex w-52 flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <div className="skeleton h-16 w-16 shrink-0 rounded-full"></div>
-              <div className="flex flex-col gap-4">
-                <div className="skeleton h-4 w-20"></div>
-                <div className="skeleton h-4 w-28"></div>
-              </div>
-            </div>
-            <div className="skeleton h-32 w-full"></div>
-          </div>
+          <div className="skeleton hero min-h-screen"></div>
         </>
       ) : (
         <>
-          (
-          <>
             <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
               <table className="table">
                 {/* head */}
@@ -59,8 +55,6 @@ function BorrowSummary({}: Props) {
               </table>
             </div>
           </>
-          )
-        </>
       )}
     </>
   );
