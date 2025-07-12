@@ -93,6 +93,10 @@ export const bookApi = createApi({
       },
       invalidatesTags: ["Books"],
     }),
+    getBorrowSummary: builder.query<ApiBorrowSummaryResponse, undefined>({
+      query: () => "borrow",
+      providesTags: ["Borrow"],
+    }),
     createBorrow: builder.mutation<BorrowResponse, Borrow>({
       query: (borrow) => {
         return {
@@ -101,12 +105,9 @@ export const bookApi = createApi({
           body: borrow,
         };
       },
-      invalidatesTags: ["Books"],
+      invalidatesTags: ["Borrow"],
     }),
-    getBorrowSummary: builder.query<ApiBorrowSummaryResponse, undefined>({
-      query: () => "borrow",
-      providesTags: ["Borrow"],
-    }),
+    
     
   }),
 });

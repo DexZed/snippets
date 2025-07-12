@@ -7,11 +7,13 @@ import {
 } from "../services/books";
 import type { ApiSingleBookResponse, BookForm } from "../utils/Customtypes";
 import Error from "./Error";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { showErrorAlert, showSuccessAlert } from "../utils/utilityFunctions";
 
 type Props = {};
 
 export default function EditBook({}: Props) {
+  const navigate = useNavigate();
   const selector = useAppSelector((state) => state.bookUi.form);
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -52,9 +54,11 @@ export default function EditBook({}: Props) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const result = await updateBook(selector).unwrap();
-      console.log("Created successfully:", result);
+      await updateBook(selector).unwrap();
+      showSuccessAlert("Success", "Book updated successfully!");
+      navigate("/");
     } catch (err) {
+      showErrorAlert("Error", "Failed to update the book.");
       console.error("Error occurred in creation:", err);
     }
   }

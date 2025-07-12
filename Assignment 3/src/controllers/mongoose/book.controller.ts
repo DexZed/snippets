@@ -7,13 +7,16 @@ const controller = Router();
 // 1. Create Book
 controller.post("/books", async (req: Request, res: Response) => {
   try {
+    console.log("Request Body:", req.body);
     const book = await BooksModel.create(req.body);
+    
     res.status(201).json({
       success: true,
       message: "Book created successfully",
       data: book,
     });
   } catch (error) {
+    console.log(error);
     
     res.status(400).json({
       success: false,

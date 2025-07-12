@@ -28,6 +28,7 @@ function BorrowBook({}: Props) {
   const navigator = useNavigate();
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
+    
     setBorrowField((prev) => ({
       ...prev,
       book:id!,
@@ -37,7 +38,12 @@ function BorrowBook({}: Props) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     //console.log(borrowField);
+    
     try {
+      if (response?.data?.copies <  borrowField.quantity) {
+      showErrorAlert("Error", "Quantity exceeds available copies.")
+      return;
+    }
         borrow(borrowField).unwrap();
       showSuccessAlert("Success", "Book borrowed successfully!");
       dispatch(bookApi.util.invalidateTags(["Borrow"]));

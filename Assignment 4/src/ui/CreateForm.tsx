@@ -15,18 +15,27 @@ function CreateForm({}: Props) {
   const dispatch = useAppDispatch();
   const [createBook, { error }] = useCreateBookMutation();
   const navigate = useNavigate();
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const { name, type, value, checked } = event.target;
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { name, type, value } = event.target;
+
+  let parsedValue: string | number | boolean = value;
+
+  if (type === "checkbox" && event.target instanceof HTMLInputElement) {
+    parsedValue = event.target.checked;
+  } else if (type === "number") {
+    parsedValue = Number(value);
+  } else if (name === "genre") {
+    const upper = value.toUpperCase().replace(/\s/g, "_");
+    parsedValue = upper;
+  }
+  
+
+
     dispatch(
       updateBookForm({
-        field: name as keyof BookForm,
-        value:
-          type === "number"
-            ? Number(value)
-            : type === "checkbox"
-            ? checked
-            : value,
-      })
+            field: name as keyof BookForm,
+            value: parsedValue,
+          })
     );
   }
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -88,14 +97,20 @@ function CreateForm({}: Props) {
                     />
 
                     <label className="label">Genre</label>
-                    <input
-                      onChange={handleInputChange}
+                    
+                    <select 
+                    className="select"
                       name="genre"
-                      type="text"
-                      className="input"
-                      placeholder="Philosophy"
-                      required
-                    />
+                      value={selector.genre}
+                      onChange={handleInputChange}
+                    >
+                      <option value="FICTION">Fiction</option>
+                      <option value="NON_FICTION">Non-fiction</option>
+                      <option value="SCIENCE">Science</option>
+                      <option value="HISTORY">History</option>
+                      <option value="BIOGRAPHY">Biography</option>
+                      <option value="FANTASY">Fantasy</option>
+                    </select>
 
                     <label className="label">ISBN</label>
                     <input
