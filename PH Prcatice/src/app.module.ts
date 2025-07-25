@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { Connection } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         },
       }),
     }),
+    UsersModule,
   ],
 
   controllers: [AppController],

@@ -9,7 +9,13 @@ export class AppController {
   @Get()
   getHello() {
     const data = this.appService.getHello();
-    
+    return{
+      success: true,
+      status: 200,
+      message: "Success",
+      reponse: data,
+      
+    }
   }
 }
 

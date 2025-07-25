@@ -7,7 +7,7 @@ async function bootstrap() {
 
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
   app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);
