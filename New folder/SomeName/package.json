@@ -9,9 +9,9 @@
     "url": "https://github.com/w3cj/express-api-starter-ts.git"
   },
   "keywords": [],
-  "main": "src/app.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "node --env-file=.env dist/src/app.js",
+    "start": "node --env-file=.env dist/src/server.js",
     "dev": "nodemon",
     "build": "tsc",
     "lint": "eslint --fix src test",
@@ -19,10 +19,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "chalk": "^5.4.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "morgan": "^1.10.0",
+    "reflect-metadata": "^0.2.2",
     "zod": "^3.25.67"
   },
   "devDependencies": {

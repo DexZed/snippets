@@ -1,29 +1,30 @@
-import cors from "cors";
-import express from "express";
-import helmet from "helmet";
-import morgan from "morgan";
-
-import type MessageResponse from "./interfaces/message-response.js";
-
-import api from "./api/index.js";
-import * as middlewares from "./middlewares.js";
+import express from 'express';
+import cors from 'cors';
+import chalk from 'chalk';
+import morgan from 'morgan';
 
 const app = express();
-
-app.use(morgan("dev"));
-app.use(helmet());
-app.use(cors());
 app.use(express.json());
+app.use(cors());
+app.use(
+      morgan((tokens, req, res) => {
+        const status = Number(tokens.status(req, res));
 
-app.get<object, MessageResponse>("/", (req, res) => {
-  res.json({
-    message: "🦄🌈✨👋🌎🌍🌏✨🌈🦄",
-  });
-});
+        const color =
+          status >= 500
+            ? chalk.red
+            : status >= 400
+            ? chalk.yellow
+            : status >= 300
+            ? chalk.cyan
+            : chalk.green;
 
-app.use("/api/v1", api);
-
-app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
-
+        return [
+          chalk.gray(tokens.method(req, res)),
+          chalk.blue(tokens.url(req, res)),
+          color(tokens.status(req, res)),
+          chalk.magenta(tokens['response-time'](req, res) + ' ms'),
+        ].join(' ');
+      })
+    )
 export default app;
