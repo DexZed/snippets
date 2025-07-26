@@ -2,10 +2,11 @@ import express from "express";
 import cors from "cors";
 import chalk from "chalk";
 import morgan from "morgan";
-
+import dotenv from 'dotenv';
 import { Application } from "express";
 import helmet from "helmet";
 import routes from "./routes";
+dotenv.config();
 
 export default class App {
   public app: Application;

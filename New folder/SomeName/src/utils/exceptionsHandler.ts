@@ -1,3 +1,4 @@
+import { MongoConnection } from "../db/MongoConnection";
 
 export class ExceptionHandler {
   private static shuttingDown = false;
@@ -30,7 +31,7 @@ export class ExceptionHandler {
 
     console.log('Shutting down gracefully...');
 
-     // Do cleanup tasks here (e.g., close DB, flush logs, etc.)
+   MongoConnection.getInstance().disconnect();
     setTimeout(() => {
       process.exit(code);
     }, 1000);
