@@ -1,9 +1,9 @@
-import app from './app';
+import App from "./app";
+import validatedConfig from "./config/validate";
+import { ExceptionHandler } from "./utils/exceptionsHandler";
 
-app.get('/',(_,res)=>{
-  res.send('Hello World')
-})
 
-app.listen(3000, () => {
-  console.log('Server is listening on port 3000');
-});
+ExceptionHandler.init();
+const PORT = validatedConfig.PORT
+const server = new App(PORT);
+server.initServer();
