@@ -1,7 +1,6 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 // User Entity
-export interface IUSer {
-    id:number;
+export interface IUSerSchema{
     name: string;
     email: string;
     password:string;
@@ -10,6 +9,10 @@ export interface IUSer {
     auths: IAuthProvider[];
     bookings:Types.ObjectId[]
     refreshToken:String
+}
+
+
+export interface IUSer extends HydratedDocument<IUSerSchema> {
 }
 
 export enum IsActive{
